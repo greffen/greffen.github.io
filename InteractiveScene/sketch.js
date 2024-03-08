@@ -1,7 +1,8 @@
-let success;
-let failure;
+let ship;
 let x = 400;
 let y = 800;
+let dx = 5;
+let dy = 5;
 let scene = 1;
 let creditsIMG;
 let button1; //Mouse Mode
@@ -12,8 +13,8 @@ let button5; //Keyboard Mode
 let button6; //Return
 
 function preload() {
-  creditsIMG = loadImage("credits.png", success, failure);
-
+  creditsIMG = loadImage("credits.png");
+  ship = loadImage("ship.png");
   
 }
 
@@ -48,9 +49,10 @@ function draw() {
     creditsIMG.remove();
   }
 
-  // else if (scene === 4) {
+  else if (scene === 4) {
+    image(ship, 160, 660);
 
-  // }
+  }
   
 
   
@@ -92,7 +94,6 @@ function createSceneThree() {
 }
 
 function createSceneFour() {
-
 
 }
 
@@ -162,6 +163,20 @@ function star(x, y, radius1, radius2, npoints) {
 
 }
 
-function failed(event) {
-  console.error("Oops!", event);
+function shipMove() {
+  if (keyIsDown(87)) { //w
+    y -= dy;
 }
+
+if (keyIsDown(83)) { //s
+  y += dy;
+}
+
+if (keyIsDown(65)) { //a
+  x -= dx;
+}
+
+if (keyIsDown(68)) { //d
+  x += dx;
+}
+} 
