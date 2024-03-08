@@ -1,6 +1,7 @@
 let ship;
-let x = 400;
-let y = 800;
+let x = 100;
+let y = 100;
+let scalar = 1.0;
 let dx = 5;
 let dy = 5;
 let scene = 1;
@@ -20,7 +21,7 @@ function preload() {
 
 
 function setup() {
-  createCanvas(x, y, button1);
+  createCanvas(400, 800, button1);
   generateBackground();
   createSceneOne();
   createSceneTwo();
@@ -28,7 +29,7 @@ function setup() {
 }
 
 function draw() {
-  
+  shipMoveKey();
   
   //scene 1 = Main Menu
   //scene 2 = Options Screen
@@ -50,7 +51,8 @@ function draw() {
   }
 
   else if (scene === 4) {
-    image(ship, 160, 660);
+    noStroke();
+    image(ship, 60 + x, 560 + y);
 
   }
   
@@ -163,20 +165,17 @@ function star(x, y, radius1, radius2, npoints) {
 
 }
 
-function shipMove() {
+function shipMoveKey() {
   if (keyIsDown(87)) { //w
     y -= dy;
+  }
+  if (keyIsDown(83)) { //s
+    y += dy;
+  }
+  if (keyIsDown(65)) { //a
+    x -= dx;
+  }
+  if (keyIsDown(68)) { //d
+    x += dx;
+  }
 }
-
-if (keyIsDown(83)) { //s
-  y += dy;
-}
-
-if (keyIsDown(65)) { //a
-  x -= dx;
-}
-
-if (keyIsDown(68)) { //d
-  x += dx;
-}
-} 

@@ -2,6 +2,7 @@
 
 ## Demos
 - [Traffic Light](TrafficLight)
+- [Collision Demo](Collision)
 
 ## Projects
 - [Interactive Scene](InteractiveScene)
