@@ -123,7 +123,7 @@ function createSceneTwo() {
   button1 = createButton("Control the player using the left and right arrows OR mouse wheel"); //Controls
   button1.position(100,300);
   button1.size(width/2, 50);
-  button5 = createButton("The Goal? Survive."); //Goal
+  button5 = createButton("The Goal? Survive. (and go for a high score!"); //Goal
   button5.position(100, 400);
   button5.size(width/2, 50);
   button6 = createButton("Return"); //Return
@@ -242,18 +242,3 @@ function mouseWheel(event) { // mouse wheel movement
   // Uncomment the line below if you want to prevent the default scroll behavior
   // return false;
 }
-
-// function shipMoveKey() {
-//   if (keyIsDown(87)) { //w
-//     y -= dy;
-//   }
-//   if (keyIsDown(83)) { //s
-//     y += dy;
-//   }
-//   if (keyIsDown(65)) { //a
-//     x -= dx;
-//   }
-//   if (keyIsDown(68)) { //d
-//     x += dx;
-//   }
-// }
