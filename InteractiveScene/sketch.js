@@ -1,24 +1,26 @@
 let ship;
-let x = 100;
-let y = 100;
-let scalar = 1.0;
-let dx = 5;
-let dy = 5;
 let scene = 1;
 let creditsIMG;
-let button1; //Mouse Mode
+let playerX = 200;
+let playerY = 550;
+let button1; //Controls
 let button2; //Start
-let button3; //Settings
+let button3; //Info
 let button4; //Credits
-let button5; //Keyboard Mode
+let button5; //Goal
 let button6; //Return
+let speed;
+let enemy1X = 100;
+let enemy2X = 200;
+let enemy3X = 300;
+let enemyY = 100;
+let score;
+let gameover;
 
 function preload() {
   creditsIMG = loadImage("credits.png");
-  ship = loadImage("ship.png");
-  
+  titleIMG = loadImage("title.png");
 }
-
 
 function setup() {
   createCanvas(400, 800, button1);
@@ -26,11 +28,15 @@ function setup() {
   createSceneOne();
   createSceneTwo();
   switchSceneOne();
+  score = 0;
+  speed = 10;
+  gameover = false;
 }
 
 function draw() {
-  shipMoveKey();
-  
+  console.log(playerX)
+
+
   //scene 1 = Main Menu
   //scene 2 = Options Screen
   //scene 3 = Credits Screen
@@ -50,20 +56,57 @@ function draw() {
     creditsIMG.remove();
   }
 
-  else if (scene === 4) {
-    noStroke();
-    image(ship, 60 + x, 560 + y);
+  else if (scene === 4) { //start of scene 4
+  generateBackground()    
+  if(gameover == false)
+  {
+  collision();
+  //player
+  fill(255);
+  rect(playerX, playerY, 10, 10);
 
+  // enemie(s)
+  fill(255, 255, 0);
+  rect(enemy1X, enemyY, 20, 20);
+  rect(enemy2X, enemyY, 20, 20);
+  rect(enemy3X, enemyY, 20, 20);
+  
+  enemyY += speed;
+  
+  //enemy at the bottom
+  if (enemyY >= height) {
+    enemyY = 0;
+    score += 1;
+    enemy1X = random(width);
+    enemy2X = random(width);
+    enemy3X = random(width);
+  }
+
+  //score
+  fill(255);
+  textSize(40);
+  text(score, width / 2, 100);
+    
+  } // end of gameover == false
+  
+    if(gameover == true)
+  {
+  score = 0;
+  speed = 0;
+  background(0)
+  textSize(20);
+  fill(255, 0, 0);
+  text("Better Luck Next Time...", width / 4, height / 2);
+  
   }
   
+} // end of scene 4
 
-  
-  
 }
 
 function createSceneOne() {
   button2 = createButton("Start");
-  button3 = createButton("Settings");
+  button3 = createButton("Info");
   button4 = createButton("Credits");
   button2.position(100,450);
   button2.size(width/2, 50);
@@ -77,10 +120,10 @@ function createSceneOne() {
 }
 
 function createSceneTwo() {
-  button1 = createButton("Mouse Mode"); //Mouse Mode
+  button1 = createButton("Control the player using the left and right arrows OR mouse wheel"); //Controls
   button1.position(100,300);
   button1.size(width/2, 50);
-  button5 = createButton("Keyboard Mode"); //Keyboard Mode
+  button5 = createButton("The Goal? Survive."); //Goal
   button5.position(100, 400);
   button5.size(width/2, 50);
   button6 = createButton("Return"); //Return
@@ -111,7 +154,7 @@ function switchSceneFour() {
 
 function switchSceneThree() {
   button6.show();
-  image(creditsIMG, -10, 250);
+  image(creditsIMG, -10, 270);
 
   scene = 2;
   button2.hide();
@@ -130,6 +173,7 @@ function switchSceneTwo() {
 }
 
 function switchSceneOne() {
+  image(titleIMG, -100, -50);
   button2.show();
   button3.show();
   button4.show();
@@ -165,17 +209,51 @@ function star(x, y, radius1, radius2, npoints) {
 
 }
 
-function shipMoveKey() {
-  if (keyIsDown(87)) { //w
-    y -= dy;
+function collision() { //i couldnt figure out how to do this all at once in one if statement im sorry 
+  if (playerX >= enemy1X && playerX <= enemy1X + 20 && playerY >= enemyY && playerY <= enemyY + 20) {
+    score = 0;
+    gameover = true;
   }
-  if (keyIsDown(83)) { //s
-    y += dy;
+
+  if (playerX >= enemy2X && playerX <= enemy2X + 20 && playerY >= enemyY && playerY <= enemyY + 20) {
+    score = 0;
+     gameover = true;
   }
-  if (keyIsDown(65)) { //a
-    x -= dx;
-  }
-  if (keyIsDown(68)) { //d
-    x += dx;
+
+  if (playerX >= enemy3X && playerX <= enemy3X + 20 && playerY >= enemyY && playerY <= enemyY + 20) {
+    score = 0;
+     gameover = true;
   }
 }
+
+function keyPressed() { //arrow key movement
+  if (keyCode === LEFT_ARROW && playerX > 0) {
+    playerX -= speed;
+  }
+  if (keyCode === RIGHT_ARROW && playerX < 390) {
+    playerX += speed;
+  }
+}
+
+function mouseWheel(event) { // mouse wheel movement
+  if (playerX + event.delta / 10 > 0 && playerX + event.delta / 10 < 360) {
+    playerX += event.delta / 10;
+  }
+  // Uncomment the line below if you want to prevent the default scroll behavior
+  // return false;
+}
+
+// function shipMoveKey() {
+//   if (keyIsDown(87)) { //w
+//     y -= dy;
+//   }
+//   if (keyIsDown(83)) { //s
+//     y += dy;
+//   }
+//   if (keyIsDown(65)) { //a
+//     x -= dx;
+//   }
+//   if (keyIsDown(68)) { //d
+//     x += dx;
+//   }
+// }
