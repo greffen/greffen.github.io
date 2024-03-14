@@ -3,7 +3,7 @@
 ## Demos
 - [Traffic Light](TrafficLight)
 - [Collision Demo](Collision)
-- [Arrays and Onjects](Circles)
+- [Arrays and Objects](Circles)
 
 ## Projects
 - [Interactive Scene](InteractiveScene)
