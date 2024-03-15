@@ -1,9 +1,10 @@
 # My Comp Sci 30 Stuff
 
 ## Demos
-- [Traffic Light](TrafficLight)
-- [Collision Demo](Collision)
-- [Arrays and Objects](Circles)
+- [Traffic Light](01-trafficlight)
+- [Collision Demo](03-collision)
+- [Arrays and Objects](05-circles)
+- [Generative Art](06-art)
 
 ## Projects
-- [Interactive Scene](InteractiveScene)
+- [Interactive Scene](interactivescene)
