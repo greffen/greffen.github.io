@@ -9,3 +9,4 @@
 
 ## Projects
 - [Interactive Scene](04-interactivescene)
+- [Arrays and Object Notation](08-arraysnobjects)
