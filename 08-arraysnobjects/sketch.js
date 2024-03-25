@@ -7,12 +7,15 @@
 
 let clickSounds = [];
 let totalClickSounds = 7;
+let cookieIMG;
 
 function preload() {
   //adds the sounds to the clickSounds array
   for (let i = 0; i < totalClickSounds; i++) {
     clickSounds[i] = loadSound("Audio Files/click" + i + ".mp3");
   }
+
+  cookieIMG = loadImage("cookie.png");
 }
 
 function setup() {
@@ -21,6 +24,13 @@ function setup() {
 
 function draw() {
   background(220);
+
+  drawCookie();
+}
+
+function drawCookie() {
+  image(cookieIMG, 0, 0);
+  cookieIMG.mouseOver(cookieIMG.resize(60, 0)); //mega wip here
 }
 
 function mouseClicked() {
@@ -32,6 +42,5 @@ function mouseClicked() {
 
 //add particles (this will hopefully be the object notation)
 //add gameplay
-//add cookie
 //add upgrades
 //add acheivments (or even save files?)
