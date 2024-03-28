@@ -14,7 +14,9 @@ let currentClickValue = 1;
 let radius = 180;
 let currentRadius = 120;
 let autoButton, clickButton;
-let autoPrice, clickPrice = 0;
+let autoPrice = 25;
+let clickPrice = 5;
+let autoRate = 0; 
 
 
 
@@ -36,6 +38,7 @@ function setup() {
 
 function draw() {
   background(220);
+  
   //ellipse(width/18 + 180, height/4 + 170, cookieSize); //fake cookie hitbox thing
   drawCookieCount();
   thatBounceEffect();
@@ -75,6 +78,7 @@ function drawCookieCount() {
   //text formatting
   noStroke();
   fill(255);
+  //attempt at making the cookie count fit better
   // let number = 80;
   // let otherNumber = -5;
   // if (otherNumber < 0 && number > 30) {
@@ -95,21 +99,56 @@ function thatBounceEffect() {
 }
 
 function makeButtons() {
-  autoButton = createButton("Upgrade Passive Cookie Baking\nPrice =", autoPrice);
+  autoButton = createButton("Upgrade Passive Cookie Baking\nPrice = " + autoPrice);
   autoButton.position(width/2 + width/4 , height/3);
   autoButton.size(300, 50);
+  autoButton.mousePressed(buyAutoUpgrade);
 
-  clickButton = createButton("Upgrade Cookies Baked Per Click\nPrice =", clickPrice);
+  clickButton = createButton("Upgrade Cookies Baked Per Click\nPrice = " + clickPrice);
   clickButton.position(width/2 + width/4 , height/4);
   clickButton.size(300, 50);
+  clickButton.mousePressed(buyClickUpgrade);
 }
+
+function buyAutoUpgrade() {
+  if (cookies >= autoPrice) {
+    cookies -= autoPrice;
+    autoPrice *= 2; //increase the price for the next upgrade
+    autoRate++; //does the thing and auto adds more
+    console.log("Passive upgrade purchased!");
+    autoButton.html("Upgrade Passive Cookie Baking\nPrice = " + autoPrice);
+  } else {
+    console.log("Insufficient cookies to purchase the upgrade!");
+  }
+}
+
+function buyClickUpgrade() {
+  if (cookies >= clickPrice) {
+    cookies -= clickPrice;
+    clickPrice *= 2; //increase the price for the next upgrade
+    currentClickValue++; //does the thing and makes it add more
+    console.log("Click upgrade purchased!");
+    clickButton.html("Upgrade Cookies Baked Per Click\nPrice = " + clickPrice);
+  } else {
+    console.log("Insufficient cookies to purchase the upgrade!");
+  }
+}
+
+function autoCookieProduction() {
+
+  cookies += autoRate;
+}
+
+setInterval(autoCookieProduction, 1000); // the automatic cookie producer
 
 
 //add particles (this will hopefully be the object notation)
 //add gameplay
 //add upgrades
-//add autoclicker
 //add acheivments (or even save files?)
 //fix the number font going down
 //fix the focus
 //do price
+//add number on click and passive number
+//add the golden cookie equivalent
+//add a sacrifice button to boost production (with another object notation thing hopefully)
