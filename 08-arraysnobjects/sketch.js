@@ -8,11 +8,14 @@
 let cookies = 0;
 let clickSounds = [];
 let totalClickSounds = 7;
-let cookieIMG;
+let cookieIMG, titleIMG;
 let cookieSize = 360;
 let currentClickValue = 1;
 let radius = 180;
 let currentRadius = 120;
+let autoButton, clickButton;
+let autoPrice, clickPrice = 0;
+
 
 
 function preload() {
@@ -22,12 +25,13 @@ function preload() {
   }
   //loads the cookie image
   cookieIMG = loadImage("Image Files/cookie.png");
-
+  titleIMG = loadImage("Image Files/title.png");
 }
 
 function setup() {
   imageMode(CENTER);
   createCanvas(windowWidth, windowHeight);
+  makeButtons();
 }
 
 function draw() {
@@ -35,6 +39,7 @@ function draw() {
   //ellipse(width/18 + 180, height/4 + 170, cookieSize); //fake cookie hitbox thing
   drawCookieCount();
   thatBounceEffect();
+  image(titleIMG, width/2, height/4);
 }
 
 function playCookieClick() {
@@ -70,6 +75,13 @@ function drawCookieCount() {
   //text formatting
   noStroke();
   fill(255);
+  // let number = 80;
+  // let otherNumber = -5;
+  // if (otherNumber < 0 && number > 30) {
+  //   number--;
+  //   otherNumber++;
+  //   textSize(number);
+  // }
   textSize(80);
   textAlign(CENTER, CENTER);
   //displaying number of clicks
@@ -82,10 +94,22 @@ function thatBounceEffect() {
   image(cookieIMG, width/18 + 180, height/4 + 170, currentRadius * 2, currentRadius * 2);
 }
 
+function makeButtons() {
+  autoButton = createButton("Upgrade Passive Cookie Baking\nPrice =", autoPrice);
+  autoButton.position(width/2 + width/4 , height/3);
+  autoButton.size(300, 50);
 
-//do something with the title that you added
+  clickButton = createButton("Upgrade Cookies Baked Per Click\nPrice =", clickPrice);
+  clickButton.position(width/2 + width/4 , height/4);
+  clickButton.size(300, 50);
+}
+
+
 //add particles (this will hopefully be the object notation)
 //add gameplay
 //add upgrades
 //add autoclicker
 //add acheivments (or even save files?)
+//fix the number font going down
+//fix the focus
+//do price
