@@ -3,8 +3,7 @@
 // 3/29/24
 //
 // Extra for Experts:
-// Implements audio (and by extension the p5 audio library), uses the lerp function in default p5js,  
-
+// Implements audio (and by extension the p5 audio library), uses the lerp function in default p5js, uses the pull-able .x thing in object notations, 
 let cookies = 0;
 let clickSounds = [];
 let totalClickSounds = 7;
@@ -17,8 +16,7 @@ let autoButton, clickButton;
 let autoPrice = 25;
 let clickPrice = 5;
 let autoRate = 0; 
-
-
+let particles = [];
 
 function preload() {
   //adds the sounds to the clickSounds array
@@ -38,11 +36,18 @@ function setup() {
 
 function draw() {
   background(220);
-  
   //ellipse(width/18 + 180, height/4 + 170, cookieSize); //fake cookie hitbox thing
   drawCookieCount();
   thatBounceEffect();
   image(titleIMG, width/2, height/4);
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].display();
+    if (particles[i].isDead()) {
+      particles.splice(i, 1);
+    }
+  }
 }
 
 function playCookieClick() {
@@ -58,15 +63,20 @@ function mousePressed() {
   if (clickedInCookie) {
     playCookieClick();
     currentRadius = 80;
-    cookies = cookies + currentClickValue;
-  }
-  else {
-    //do nothing
+    cookies += currentClickValue;
+    
+    // Create particle for displaying the number of cookies gained
+    let cookieNumberParticle = createCookieNumberParticle(mouseX, mouseY, currentClickValue);
+    particles.push(cookieNumberParticle);
+    
+    // Create particles for representing cookies visually
+    for (let i = 0; i < 10; i++) {
+      particles.push(createCookieParticle(mouseX, mouseY));
+    }
   }
 }
 
 function pointCircle(px, py, cx, cy) {
-  //the small amount of "are you clicking on the cookie" math
   let d = dist(px, py, cx, cy);
   if(d <= cookieSize/2) {
     return true; 
@@ -78,17 +88,8 @@ function drawCookieCount() {
   //text formatting
   noStroke();
   fill(255);
-  //attempt at making the cookie count fit better
-  // let number = 80;
-  // let otherNumber = -5;
-  // if (otherNumber < 0 && number > 30) {
-  //   number--;
-  //   otherNumber++;
-  //   textSize(number);
-  // }
   textSize(80);
   textAlign(CENTER, CENTER);
-  //displaying number of clicks
   text(cookies, width/2, height/2);
 }
 
@@ -113,8 +114,8 @@ function makeButtons() {
 function buyAutoUpgrade() {
   if (cookies >= autoPrice) {
     cookies -= autoPrice;
-    autoPrice *= 2; //increase the price for the next upgrade
-    autoRate++; //does the thing and auto adds more
+    autoPrice *= 2;
+    autoRate++;
     console.log("Passive upgrade purchased!");
     autoButton.html("Upgrade Passive Cookie Baking\nPrice = " + autoPrice);
   } else {
@@ -135,20 +136,73 @@ function buyClickUpgrade() {
 }
 
 function autoCookieProduction() {
-
   cookies += autoRate;
 }
 
-setInterval(autoCookieProduction, 1000); // the automatic cookie producer
+setInterval(autoCookieProduction, 1000);  // the automatic cookie producer
+
+function createCookieParticle(x, y) {
+  let particle = {
+    x: x,
+    y: y,
+    diameter: random(5, 10),
+    dx: random(-2, 2),
+    dy: random(-2, 2),
+    lifespan: 255,
+
+    update: function () {
+      this.x += this.dx;
+      this.y += this.dy;
+      this.lifespan -= 1;
+    },
+
+    display: function () {
+      noStroke();
+      fill(139, 69, 19, this.lifespan); // Brown color
+      ellipse(this.x, this.y, this.diameter, this.diameter);
+    },
+
+    isDead: function () {
+      return this.lifespan < 0;
+    }
+  };
+
+  return particle;
+}
+
+function createCookieNumberParticle(x, y, number) {
+  let particle = {
+    x: x,
+    y: y,
+    number: number,
+    dy: -2,
+    lifespan: 150,
+
+    update: function () {
+      this.y += this.dy;
+      this.lifespan -= 1;
+    },
+
+    display: function () {
+      noStroke();
+      fill(0, this.lifespan); // Black color
+      textSize(24);
+      textAlign(CENTER, BOTTOM);
+      text("+" + this.number, this.x, this.y);
+    },
+
+    isDead: function () {
+      return this.lifespan < 0;
+    }
+  };
+
+  return particle;
+}
 
 
-//add particles (this will hopefully be the object notation)
-//add gameplay
-//add upgrades
+
 //add acheivments (or even save files?)
-//fix the number font going down
 //fix the focus
-//do price
 //add number on click and passive number
 //add the golden cookie equivalent
 //add a sacrifice button to boost production (with another object notation thing hopefully)
