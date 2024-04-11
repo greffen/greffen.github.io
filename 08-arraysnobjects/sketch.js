@@ -118,7 +118,8 @@ function buyAutoUpgrade() {
     autoRate++;
     console.log("Passive upgrade purchased!");
     autoButton.html("Upgrade Passive Cookie Baking\nPrice = " + autoPrice);
-  } else {
+  } 
+  else {
     console.log("Insufficient cookies to purchase the upgrade!");
   }
 }
@@ -130,7 +131,8 @@ function buyClickUpgrade() {
     currentClickValue++; //does the thing and makes it add more
     console.log("Click upgrade purchased!");
     clickButton.html("Upgrade Cookies Baked Per Click\nPrice = " + clickPrice);
-  } else {
+  } 
+  else {
     console.log("Insufficient cookies to purchase the upgrade!");
   }
 }

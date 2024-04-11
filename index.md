@@ -7,6 +7,7 @@
 - [Generative Art](06-art)
 - [Terrain Generation](07-terrain)
 - [Bubble Movement](09-bubble)
+- [Grid Demo](10-grid)
 
 ## Projects
 - [Interactive Scene](04-interactivescene)
