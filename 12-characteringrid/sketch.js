@@ -15,10 +15,15 @@ let player = {
 };
 let grassIMG;
 let pavementIMG;
+let backgroundMusic;
+let cantWalkSound;
+let state = "start screen";
 
 function preload() {
-  grassIMG = loadImage("grass.jpg");
-  pavementIMG = loadImage("pavement.jpg");
+  grassIMG = loadImage("Images/grass.jpg");
+  pavementIMG = loadImage("Images/pavement.jpg");
+  backgroundMusic = loadSound("Sounds/backgroundMusic.mp3");
+  cantWalkSound = loadSound("Sounds/ough.wav");
 }
 
 function setup() {
@@ -38,6 +43,10 @@ function setup() {
 
   //add player to the grid
   grid[player.y][player.x] = PLAYER;
+
+  //equalize audio
+  backgroundMusic.setVolume(0.4);
+  cantWalkSound.setVolume(0.7);
 }
 
 function windowResized() {
@@ -52,17 +61,23 @@ function windowResized() {
 }
 
 function draw() {
-  background(220);
-  displayGrid();
+  if (state === "start screen") {
+    background("black");
+  }
+  else if (state === "game") {
+    background(220);
+    displayGrid();
+  }
 }
 
 function keyPressed() {
-  if (key === "r") {
-    grid = generateRandomGrid(GRID_SIZE, GRID_SIZE);
+  if (key === " " && state === "start screen") {
+    state = "game";
+    backgroundMusic.loop();
   }
 
-  if (key === "e") {
-    grid = generateEmptyGrid(GRID_SIZE, GRID_SIZE);
+  if (key === "r") {
+    grid = generateRandomGrid(GRID_SIZE, GRID_SIZE);
   }
 
   if (key === "w") {
@@ -98,8 +113,13 @@ function movePlayer(x, y) {
     grid[oldy][oldx] = OPEN_TILE;
     
     grid[player.y][player.x] = PLAYER;
+
+  }
+  else {
+    cantWalkSound.play();
   }
 }
+
 
 function mousePressed() {
   let x = Math.floor(mouseX/cellSize);
