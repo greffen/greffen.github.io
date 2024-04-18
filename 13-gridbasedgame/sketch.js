@@ -39,17 +39,20 @@ let player = {
 let grassIMG;
 let pavementIMG;
 let backgroundMusic;
-let cantWalkSound;
 let state = "start screen";
+let titleIMG;
+let direction = "";
+
 
 function preload() {
   grassIMG = loadImage("Images/grass.jpg");
   pavementIMG = loadImage("Images/pavement.jpg");
+  titleIMG = loadImage("Images/title.png");
   backgroundMusic = loadSound("Sounds/backgroundMusic.mp3");
-  cantWalkSound = loadSound("Sounds/ough.wav");
 }
 
 function setup() {
+  //imageMode(CENTER);
   //make the canvas the largest square possible
   if (windowWidth < windowHeight) {
     createCanvas(windowWidth, windowWidth);
@@ -69,7 +72,6 @@ function setup() {
 
   //equalize audio
   backgroundMusic.setVolume(0.4);
-  cantWalkSound.setVolume(0.7);
 }
 
 function windowResized() {
@@ -85,11 +87,16 @@ function windowResized() {
 
 function draw() {
   if (state === "start screen") {
-    background("black");
+    background("gray");
+    //attempt at adjusting the image display position in accordance with the canvas and size of the image (accounting for the dead space on the left with the + 75(hopefully))
+    let centerX = canvas.width / 2;
+    let centerY = canvas.height / 2;
+    image(titleIMG, centerX - titleIMG.width / 2 + 75, centerY - titleIMG.height / 2);
   }
   else if (state === "game") {
     background(220);
     displayGrid();
+    updateMovement();
   }
 }
 
@@ -99,74 +106,66 @@ function keyPressed() {
     backgroundMusic.loop();
   }
 
-  if (key === "r") {
-    grid = generateRandomGrid(GRID_SIZE, GRID_SIZE);
-  }
-
   if (key === "w") {
-    movePlayer(player.x + 0, player.y - 1); //0 on x axis, -1 on y axis (i.e. up)
+    //movePlayer(player.x + 0, player.y - 1); //0 on x axis, -1 on y axis (i.e. up)
+    direction = "up";
   }
 
   if (key === "a") {
-    movePlayer(player.x - 1, player.y + 0); //-1 on x axis, 0 on y axis (i.e. left)
+    //movePlayer(player.x - 1, player.y + 0); //-1 on x axis, 0 on y axis (i.e. left)
+    direction = "left";
   }
 
   if (key === "s") {
-    movePlayer(player.x + 0, player.y + 1); //0 on x axis, 1 on y axis (i.e. down)
+    //movePlayer(player.x + 0, player.y + 1); //0 on x axis, 1 on y axis (i.e. down)
+    direction = "down";
   }
 
   if (key === "d") {
-    movePlayer(player.x + 1, player.y + 0); //0 on x axis, -1 on y axis (i.e. right)
+    //movePlayer(player.x + 1, player.y + 0); //0 on x axis, -1 on y axis (i.e. right)
+    direction = "right";
   }
 }
 
-function movePlayer(x, y) {
-  //dont move off the grid check and at the end check that the tile is OPEN_TILE
-  if (x < GRID_SIZE && y < GRID_SIZE &&
-    x >= 0 && y >= 0 && grid[y][x] === OPEN_TILE) {
-    //old player tile
-    let oldx = player.x;
-    let oldy = player.y;
-
-    //move the player
-    player.x = x;
-    player.y = y;
-
-    //reset old player tile to OPEN_TILE
-    grid[oldy][oldx] = OPEN_TILE;
-    
-    grid[player.y][player.x] = PLAYER;
-
+function updateMovement() {
+  // Check if it's time to move the player
+  if (frameCount % 4 === 0) {
+    movePlayerAccordingToDirection();
   }
-  else if (x === 21) {
-    //old player tile
-    let oldx = player.x;
-    let oldy = player.y;
+}
 
-    //move the player to their teleported place
-    player.x = 0;
+function movePlayerAccordingToDirection() {
+  let nextX = player.x;
+  let nextY = player.y;
 
-    //reset old player tile to OPEN_TILE
-    grid[oldy][oldx] = OPEN_TILE;
-    grid[player.y][player.x] = PLAYER;
+  if (direction === "up") {
+    nextY--;
+  } 
+  else if (direction === "down") {
+    nextY++;
+  } 
+  else if (direction === "left") {
+    nextX--;
   }
-  else if (x === -1) {
-    //old player tile
-    let oldx = player.x;
-    let oldy = player.y;
+  else if (direction === "right") {
+    nextX++;
+  }
 
-    //move the player to their teleported place
-    player.x = 20;
-
-    //reset old player tile to OPEN_TILE
-    grid[oldy][oldx] = OPEN_TILE;
+  // only if the next position is open
+  if (grid[nextY][nextX] === OPEN_TILE && frameCount % 2 === 0) {
+    //clear old player
+    grid[player.y][player.x] = OPEN_TILE;
+    //update new player
+    player.x = nextX;
+    player.y = nextY;
+    //update the grid with the new shit
     grid[player.y][player.x] = PLAYER;
   }
   else {
-    cantWalkSound.play();
+    //If the next position is not an open tile (wall), stop moving
+    direction = "";
   }
 }
-
 
 function mousePressed() {
   let x = Math.floor(mouseX/cellSize);
@@ -220,23 +219,6 @@ function displayGrid() {
       }
     }
   }
-}
-
-function generateRandomGrid(cols, rows) {
-  let emptyArray = [];
-  for (let y = 0; y < rows; y++) {
-    emptyArray.push([]);
-    for (let x = 0; x < cols; x++) {
-      //half the time, be a 1. Other half, be a 0.
-      if (random(100) < 50) {
-        emptyArray[y].push(0);
-      }
-      else {
-        emptyArray[y].push(1);
-      }
-    }
-  }
-  return emptyArray;
 }
 
 function generateEmptyGrid(cols, rows) {
