@@ -36,23 +36,26 @@ let player = {
   x: 10,
   y: 14,
 };
-let grassIMG;
-let pavementIMG;
-let backgroundMusic;
-let state = "start screen";
 let titleIMG;
+let loadJingleMusic;
+let sad1;
+let sad2;
+let sad3;
+let sad4;
+let state = "start screen";
 let direction = "";
 
 
 function preload() {
-  grassIMG = loadImage("Images/grass.jpg");
-  pavementIMG = loadImage("Images/pavement.jpg");
-  titleIMG = loadImage("Images/title.png");
-  backgroundMusic = loadSound("Sounds/backgroundMusic.mp3");
+  titleIMG = loadImage("Assets/Images/title.png");
+  loadJingleMusic = loadSound("Assets/Sounds/beginning.wav");
+  sad1 = loadImage("Assets/Images/sad/sad1.png");
+  sad2 = loadImage("Assets/Images/sad/sad2.png");
+  sad3 = loadImage("Assets/Images/sad/sad3.png");
+  sad4 = loadImage("Assets/Images/sad/sad4.png");
 }
 
 function setup() {
-  //imageMode(CENTER);
   //make the canvas the largest square possible
   if (windowWidth < windowHeight) {
     createCanvas(windowWidth, windowWidth);
@@ -71,7 +74,7 @@ function setup() {
   grid[player.y][player.x] = PLAYER;
 
   //equalize audio
-  backgroundMusic.setVolume(0.4);
+  loadJingleMusic.setVolume(0.4);
 }
 
 function windowResized() {
@@ -94,18 +97,22 @@ function draw() {
     image(titleIMG, centerX - titleIMG.width / 2 + 75, centerY - titleIMG.height / 2);
   }
   else if (state === "game") {
-    background(220);
     displayGrid();
     updateMovement();
+  }
+  else if (state === "death screen") {
+    background(255,253,201);
+    
   }
 }
 
 function keyPressed() {
   if (key === " " && state === "start screen") {
     state = "game";
-    backgroundMusic.loop();
+    loadJingleMusic.play();
   }
 
+  //wasd
   if (key === "w") {
     //movePlayer(player.x + 0, player.y - 1); //0 on x axis, -1 on y axis (i.e. up)
     direction = "up";
@@ -125,11 +132,32 @@ function keyPressed() {
     //movePlayer(player.x + 1, player.y + 0); //0 on x axis, -1 on y axis (i.e. right)
     direction = "right";
   }
+
+  //arrow keys
+  if (key === "ArrowUp") {
+    //movePlayer(player.x + 0, player.y - 1); //0 on x axis, -1 on y axis (i.e. up)
+    direction = "up";
+  }
+
+  if (key === "ArrowLeft") {
+    //movePlayer(player.x - 1, player.y + 0); //-1 on x axis, 0 on y axis (i.e. left)
+    direction = "left";
+  }
+
+  if (key === "ArrowDown") {
+    //movePlayer(player.x + 0, player.y + 1); //0 on x axis, 1 on y axis (i.e. down)
+    direction = "down";
+  }
+
+  if (key === "ArrowRight") {
+    //movePlayer(player.x + 1, player.y + 0); //0 on x axis, -1 on y axis (i.e. right)
+    direction = "right";
+  }
 }
 
 function updateMovement() {
-  // Check if it's time to move the player
-  if (frameCount % 4 === 0) {
+  //framecount workaround thing
+  if (frameCount % 6 === 0) {
     movePlayerAccordingToDirection();
   }
 }
@@ -152,14 +180,35 @@ function movePlayerAccordingToDirection() {
   }
 
   // only if the next position is open
-  if (grid[nextY][nextX] === OPEN_TILE && frameCount % 2 === 0) {
+  if (grid[nextY][nextX] === OPEN_TILE) {
     //clear old player
     grid[player.y][player.x] = OPEN_TILE;
     //update new player
     player.x = nextX;
     player.y = nextY;
-    //update the grid with the new shit
+    //update the grid with the new player location
     grid[player.y][player.x] = PLAYER;
+  }
+  else if (player.x === 20) { //right teleport clause
+    //clear old player
+    grid[player.y][player.x] = OPEN_TILE;
+    //update new player
+    player.x = 0;
+    player.y = nextY;
+    //update the grid with the new player location (hardcoded to the left side)
+    grid[9][0] = PLAYER;
+  }
+  else if (player.x === 0) { //left teleport clause
+    //clear old player
+    grid[player.y][player.x] = OPEN_TILE;
+    //update new player
+    player.x = 20;
+    player.y = nextY;
+    //update the grid with the new player location (hardcoded to the right side)
+    grid[9][20] = PLAYER;
+  }
+  else if (grid[nextY][nextX] === PINKY || grid[nextY][nextX] === BLINKY || grid[nextY][nextX] === CLYDE ) {
+    state = "death screen";
   }
   else {
     //If the next position is not an open tile (wall), stop moving
@@ -231,3 +280,8 @@ function generateEmptyGrid(cols, rows) {
   }
   return emptyArray;
 }
+
+//to do:
+//-balls
+//-animation loop
+//-ghosts ai
