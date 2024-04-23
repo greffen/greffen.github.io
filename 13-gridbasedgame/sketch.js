@@ -1,7 +1,9 @@
 // Character in 2D Grid
 // Dan Schellenberg
 // Apr 15, 2024
-
+//
+// Extra for Experts:
+// Implements audio
 
 let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,],
@@ -27,23 +29,21 @@ let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
 let cellSize;
 const GRID_SIZE = 21;
 const PLAYER = 9;
+const BLOCK = 1;
+const OPEN_TILE = 0;
 const BLINKY = 10;
 const PINKY = 11;
 const CLYDE = 12;
-const BLOCK = 1;
-const OPEN_TILE = 0;
 let player = {
   x: 10,
   y: 14,
 };
 let titleIMG;
 let loadJingleMusic;
-let sad1;
-let sad2;
-let sad3;
-let sad4;
+let sad1, sad2, sad3, sad4;
 let state = "start screen";
 let direction = "";
+let pelletArray = [];
 
 
 function preload() {
@@ -75,6 +75,14 @@ function setup() {
 
   //equalize audio
   loadJingleMusic.setVolume(0.4);
+
+  // store pellets in an array
+  for (let y=0; y< GRID_SIZE; y++) {
+    for (let x=0; x< GRID_SIZE; x++) {
+      let thePellet = new Pellet(x, y);
+      pelletArray.push(thePellet);
+    }
+  }
 }
 
 function windowResized() {
@@ -99,10 +107,35 @@ function draw() {
   else if (state === "game") {
     displayGrid();
     updateMovement();
+    displayPellets();
   }
   else if (state === "death screen") {
-    background(255,253,201);
-    
+    background(255, 253, 201);
+
+    // Define the positions for each sad image
+    let centerX = canvas.width / 2;
+    let centerY = canvas.height / 2;
+    let padding = 20; // Adjust this value to control the spacing between images
+    let offsetX = 100; // Adjust this value to move the images to the right
+    let offsetY = 0; // Adjust this value to move the images down
+
+    // Draw each sad image at a static position on the screen
+    let totalWidth = 0;
+    let maxImageHeight = 0;
+    let sadImages = [sad1, sad2, sad3, sad4];
+    for (let i = 0; i < sadImages.length; i++) {
+      totalWidth += sadImages[i].width;
+      maxImageHeight = max(maxImageHeight, sadImages[i].height);
+    }
+
+    let startX = centerX - totalWidth / 2 + offsetX;
+    let startY = centerY - maxImageHeight / 2 + offsetY;
+
+    let currentX = startX;
+    for (let i = 0; i < sadImages.length; i++) {
+      image(sadImages[i], currentX, startY);
+      currentX += sadImages[i].width + padding;
+    }
   }
 }
 
@@ -112,45 +145,38 @@ function keyPressed() {
     loadJingleMusic.play();
   }
 
-  //wasd
+  //wasd controls
   if (key === "w") {
-    //movePlayer(player.x + 0, player.y - 1); //0 on x axis, -1 on y axis (i.e. up)
     direction = "up";
   }
 
   if (key === "a") {
-    //movePlayer(player.x - 1, player.y + 0); //-1 on x axis, 0 on y axis (i.e. left)
+
     direction = "left";
   }
 
   if (key === "s") {
-    //movePlayer(player.x + 0, player.y + 1); //0 on x axis, 1 on y axis (i.e. down)
     direction = "down";
   }
 
   if (key === "d") {
-    //movePlayer(player.x + 1, player.y + 0); //0 on x axis, -1 on y axis (i.e. right)
     direction = "right";
   }
 
-  //arrow keys
+  //arrow key controls
   if (key === "ArrowUp") {
-    //movePlayer(player.x + 0, player.y - 1); //0 on x axis, -1 on y axis (i.e. up)
     direction = "up";
   }
 
   if (key === "ArrowLeft") {
-    //movePlayer(player.x - 1, player.y + 0); //-1 on x axis, 0 on y axis (i.e. left)
     direction = "left";
   }
 
   if (key === "ArrowDown") {
-    //movePlayer(player.x + 0, player.y + 1); //0 on x axis, 1 on y axis (i.e. down)
     direction = "down";
   }
 
   if (key === "ArrowRight") {
-    //movePlayer(player.x + 1, player.y + 0); //0 on x axis, -1 on y axis (i.e. right)
     direction = "right";
   }
 }
@@ -281,7 +307,38 @@ function generateEmptyGrid(cols, rows) {
   return emptyArray;
 }
 
+//most all pellet stuff is found below
+class Pellet {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = (width/GRID_SIZE+height/GRID_SIZE)/2*0.1;
+    this.theColor = "white";
+  }
+
+  display() {
+    if (grid[this.y][this.x] === 0) {
+      fill(this.theColor);
+      circle(this.x*width/GRID_SIZE + width/GRID_SIZE/2, this.y*height/GRID_SIZE + height/GRID_SIZE/2, this.radius*2);
+    }
+  }
+}
+
+function displayPellets() {
+  let p = 0; // position within the pellet array
+  for (let y=0; y < GRID_SIZE; y++) {
+    for (let x=0; x < GRID_SIZE; x++) {
+      if (grid[y][x] === 0) { 
+        pelletArray[p].display();
+      }
+      p++;
+    }
+  }
+}
+
+
 //to do:
-//-balls
-//-animation loop
-//-ghosts ai
+//better end screen
+//balls
+//animation loop
+//ghosts ai
