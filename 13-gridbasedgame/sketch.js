@@ -3,12 +3,12 @@
 // Apr 15, 2024
 //
 // Extra for Experts:
-// Implements .inside and .flat (.flat took so much searching for and is a godsend. actually so beautiful), implements audio (which i guess is no longer actually extra for experts), implements 
+// Implements .includes and .flat (.flat took so much searching for and is a godsend. actually so beautiful), implements audio (which i guess is no longer actually extra for experts), implements 
 
 let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,],
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1,],
-  [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1,],
+  [1, 3, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 3, 1,],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,],
   [1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1,],
   [1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1,],
@@ -19,7 +19,7 @@ let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
   [1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,],
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1,],
-  [1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1,],
+  [1, 3, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 3, 1,],
   [1, 1, 1, 2, 1, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 1, 1, 1,],
   [1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1,],
@@ -29,8 +29,8 @@ let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
 let cellSize;
 const GRID_SIZE = 21;
 const PLAYER = 9;
-const PLAYER2 = 8;
 const PELLET_TILE = 2;
+const POWERUP_TILE = 3;
 const BLOCK = 1;
 const OPEN_TILE = 0;
 const BLINKY = 10;
@@ -38,10 +38,6 @@ const PINKY = 11;
 const CLYDE = 12;
 let player = {
   x: 9,
-  y: 14,
-};
-let player2 = {
-  x: 11,
   y: 14,
 };
 let titleIMG;
@@ -216,7 +212,7 @@ function movePlayerAccordingToDirection() {
   }
 
   // only if the next position is open
-  if (grid[nextY][nextX] === OPEN_TILE || grid[nextY][nextX] === PELLET_TILE) {
+  if (grid[nextY][nextX] === OPEN_TILE || grid[nextY][nextX] === PELLET_TILE || grid[nextY][nextX] === POWERUP_TILE) {
     //clear old player
     grid[player.y][player.x] = OPEN_TILE;
     //update new player
@@ -293,12 +289,15 @@ function displayGrid() {
         fill("white");
         circle(x*width/GRID_SIZE + width/GRID_SIZE/2, y*height/GRID_SIZE + height/GRID_SIZE/2, radius*2);
       }
+      else if (grid[y][x] === POWERUP_TILE) {
+        let radius = (width/GRID_SIZE+height/GRID_SIZE)/2*0.1;
+        fill("black");
+        square(x * cellSize, y * cellSize, cellSize);
+        fill(237, 242, 90);
+        circle(x*width/GRID_SIZE + width/GRID_SIZE/2, y*height/GRID_SIZE + height/GRID_SIZE/2, radius*5);
+      }
       else if(grid[y][x] === PLAYER) {
         fill ("yellow");
-        square(x * cellSize, y * cellSize, cellSize);
-      }
-      else if(grid[y][x] === PLAYER2) {
-        fill ("green");
         square(x * cellSize, y * cellSize, cellSize);
       }
       else if(grid[y][x] === BLINKY) {
