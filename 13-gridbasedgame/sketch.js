@@ -37,20 +37,22 @@ const BLINKY = 10;
 const PINKY = 11;
 const CLYDE = 12;
 let player = {
-  x: 9,
+  x: 10,
   y: 14,
 };
 let titleIMG;
-let loadJingleMusic;
+let loadJingleMusic, pacMoveSound;  
 let sad1, sad2, sad3, sad4;
 let state = "start screen";
 let direction = "";
+let isMoving = false;
 let pelletArray = [];
 
 
 function preload() {
   titleIMG = loadImage("Assets/Images/title.png");
   loadJingleMusic = loadSound("Assets/Sounds/beginning.wav");
+  pacMoveSound = loadSound("Assets/Sounds/waka.mp3");
   sad1 = loadImage("Assets/Images/sad/sad1.png");
   sad2 = loadImage("Assets/Images/sad/sad2.png");
   sad3 = loadImage("Assets/Images/sad/sad3.png");
@@ -74,6 +76,7 @@ function setup() {
 
   //equalize audio
   loadJingleMusic.setVolume(0.4);
+  pacMoveSound.setVolume(0.6);
 }
 
 function windowResized() {
@@ -97,12 +100,14 @@ function draw() {
   }
   else if (state === "game") {
     displayGrid();
-    updateMovement();
+    updatePlayerMovement();
+    playPacMoveSound();
     if (grid.flat(2).includes(2) === false) {
       state = "win";
     }
   }
   else if (state === "win") {
+    pacMoveSound.stop();
     background(255, 253, 201);
     textSize(50);
     textAlign(CENTER, CENTER);
@@ -110,6 +115,7 @@ function draw() {
     text("<WE'VE GOT A WINNER>", width/2, height/2);
   }
   else if (state === "death screen") {
+    pacMoveSound.stop();
     background(255, 253, 201);
     textSize(80);
     textAlign(CENTER, CENTER);
@@ -187,10 +193,19 @@ function keyPressed() {
   }
 }
 
-function updateMovement() {
+function updatePlayerMovement() {
   //framecount workaround thing
   if (frameCount % 6 === 0) {
     movePlayerAccordingToDirection();
+  }
+}
+
+function updateGhostMovement() {
+  //framecount workaround thing
+  if (frameCount % 6 === 0) {
+    moveGhostPinky();
+    moveGhostBlinky();
+    moveGhostClyde();
   }
 }
 
@@ -220,6 +235,7 @@ function movePlayerAccordingToDirection() {
     player.y = nextY;
     //update the grid with the new player location
     grid[player.y][player.x] = PLAYER;
+    isMoving = true;
   }
   else if (player.x === 20) { //right teleport clause
     //clear old player
@@ -229,6 +245,8 @@ function movePlayerAccordingToDirection() {
     player.y = nextY;
     //update the grid with the new player location (hardcoded to the left side)
     grid[9][0] = PLAYER;
+    isMoving = true;
+
   }
   else if (player.x === 0) { //left teleport clause
     //clear old player
@@ -238,6 +256,7 @@ function movePlayerAccordingToDirection() {
     player.y = nextY;
     //update the grid with the new player location (hardcoded to the right side)
     grid[9][20] = PLAYER;
+    isMoving = true;
   }
   else if (grid[nextY][nextX] === PINKY || grid[nextY][nextX] === BLINKY || grid[nextY][nextX] === CLYDE ) {
     state = "death screen";
@@ -245,9 +264,21 @@ function movePlayerAccordingToDirection() {
   else {
     //If the next position is not an open tile (wall), stop moving
     direction = "";
+    isMoving = false;
   }
 }
 
+function moveGhostBlinky() { //chases towrards the player directly
+
+}
+
+function moveGhostPinky() { //chases towards the spot 2 tiles in front of the player
+
+}
+
+function moveGhostClyde() { //moves randomly (clydes dumb)
+
+}
 
 function mousePressed() {
   let x = Math.floor(mouseX/cellSize);
@@ -327,9 +358,22 @@ function generateEmptyGrid(cols, rows) {
   return emptyArray;
 }
 
+function playPacMoveSound() {
+  //if moving, play the sound on loop
+  if (isMoving === true) {
+    if (!pacMoveSound.isPlaying()) {
+      pacMoveSound.loop();
+    }
+  } 
+  else {
+    //if not stop
+    pacMoveSound.stop();
+  }
+}
+
 
 //to do:
-//better end screen
 //animation loop
 //ghosts ai
 //lerp movement
+//big balls do something
