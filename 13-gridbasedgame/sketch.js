@@ -14,8 +14,8 @@ let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1,],
   [1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1,],
   [1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1,],
-  [2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,],
-  [1, 1, 1, 1, 1, 2, 1, 2, 1, 10, 11, 12, 1, 2, 1, 2, 1, 1, 1, 1, 1,],
+  [2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 0, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,],
+  [1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1,],
   [1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,],
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1,],
@@ -39,6 +39,18 @@ const CLYDE = 12;
 let player = {
   x: 10,
   y: 14,
+};
+let clyde = {
+  x: 10,
+  y: 10,
+};
+let pinky = {
+  x: 11,
+  y: 10,
+};
+let blinky = {
+  x: 9,
+  y: 10,
 };
 let titleIMG;
 let loadJingleMusic, pacMoveSound;  
@@ -73,6 +85,9 @@ function setup() {
 
   //add player to the grid
   grid[player.y][player.x] = PLAYER;
+  grid[clyde.y][clyde.x] = CLYDE;
+  grid[pinky.y][pinky.x] = PINKY;
+  grid[blinky.y][blinky.x] = BLINKY;
 
   //equalize audio
   loadJingleMusic.setVolume(0.4);
@@ -101,6 +116,7 @@ function draw() {
   else if (state === "game") {
     displayGrid();
     updatePlayerMovement();
+    updateGhostMovement();
     playPacMoveSound();
     if (grid.flat(2).includes(2) === false) {
       state = "win";
@@ -277,8 +293,54 @@ function moveGhostPinky() { //chases towards the spot 2 tiles in front of the pl
 }
 
 function moveGhostClyde() { //moves randomly (clydes dumb)
+  let randomMove = Math.floor(Math.random() * 4); // Generate random number between 0 and 3 to decide direction
 
+  let nextX = clyde.x;
+  let nextY = clyde.y;
+
+  if (randomMove === 0) { // move up
+    nextY--;
+  } 
+  else if (randomMove === 1) { // move down
+    nextY++;
+  } 
+  else if (randomMove === 2) { // move left
+    nextX--;
+  }
+  else if (randomMove === 3) { // move right
+    nextX++;
+  }
+
+  // update new ghost position if within bounds
+  if (grid[nextY][nextX] === OPEN_TILE) {
+    // clear old ghost
+    grid[clyde.y][clyde.x] = OPEN_TILE;
+    //update new clyde position
+    clyde.x = nextX;
+    clyde.y = nextY;
+  }
+  else if (grid[nextY][nextX] === PELLET_TILE) {
+    // clear old ghost
+    grid[clyde.y][clyde.x] = PELLET_TILE;
+
+    clyde.x = nextX;
+    clyde.y = nextY;
+  }
+  else if (grid[nextY][nextX] === POWERUP_TILE) {
+    // clear old ghost
+    grid[clyde.y][clyde.x] = POWERUP_TILE;
+
+    clyde.x = nextX;
+    clyde.y = nextY;
+  }
+  else if (grid[nextY][nextX] === PLAYER) {
+    state = "death screen";
+  }
+
+  // update the grid with the new ghost location
+  grid[clyde.y][clyde.x] = CLYDE;
 }
+
 
 function mousePressed() {
   let x = Math.floor(mouseX/cellSize);
@@ -297,6 +359,12 @@ function toggleCell(x, y) {
     }
     else if (grid[y][x] === BLOCK) {
       grid[y][x] = OPEN_TILE;
+    }
+    else if (grid[y][x] === PELLET_TILE) {
+      grid[y][x] = OPEN_TILE;
+    }
+    else if (grid[y][x] === POWERUP_TILE) {
+      grid[y][x] = PELLET_TILE;
     }
   }
 }
@@ -374,6 +442,8 @@ function playPacMoveSound() {
 
 //to do:
 //animation loop
-//ghosts ai
 //lerp movement
 //big balls do something
+//ghost above the grid**
+//other ghost ais
+//get rid of clicking
