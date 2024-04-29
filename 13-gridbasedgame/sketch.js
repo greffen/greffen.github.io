@@ -136,7 +136,7 @@ function draw() {
     textSize(80);
     textAlign(CENTER, CENTER);
     textFont("Crackman");
-    text("you loose", width/2, height/4);
+    text("you lose", width/2, height/4);
     text("WOMP WOMP", width/2, height/1.25);
 
 
