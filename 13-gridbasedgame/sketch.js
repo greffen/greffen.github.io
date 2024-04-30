@@ -43,15 +43,18 @@ let player = {
 let clyde = {
   x: 10,
   y: 10,
+  previousTile: OPEN_TILE //very sorry to admit that i have gone with the weenie solution despite your preaching to the contrary
 };
 let pinky = {
   x: 11,
   y: 10,
+  previousTile: OPEN_TILE 
 };
 let blinky = {
   x: 9,
   y: 10,
-};
+  previousTile: OPEN_TILE
+}
 let titleIMG;
 let loadJingleMusic, pacMoveSound;  
 let sad1, sad2, sad3, sad4;
@@ -298,7 +301,7 @@ function moveGhostClyde() { //moves randomly (clydes dumb)
   let nextX = clyde.x;
   let nextY = clyde.y;
 
-  if (randomMove === 0) { // move up
+  if (randomMove === 0) {  // move up
     nextY--;
   } 
   else if (randomMove === 1) { // move down
@@ -311,35 +314,32 @@ function moveGhostClyde() { //moves randomly (clydes dumb)
     nextX++;
   }
 
-  // update new ghost position if within bounds
   if (grid[nextY][nextX] === OPEN_TILE) {
-    // clear old ghost
-    grid[clyde.y][clyde.x] = OPEN_TILE;
-    //update new clyde position
+    grid[clyde.y][clyde.x] = clyde.previousTile;
+    clyde.previousTile = grid[nextY][nextX];
     clyde.x = nextX;
     clyde.y = nextY;
+    grid[clyde.y][clyde.x] = CLYDE;
   }
   else if (grid[nextY][nextX] === PELLET_TILE) {
-    // clear old ghost
-    grid[clyde.y][clyde.x] = PELLET_TILE;
-
+    grid[clyde.y][clyde.x] = clyde.previousTile;
+    clyde.previousTile = grid[nextY][nextX];
     clyde.x = nextX;
     clyde.y = nextY;
+    grid[clyde.y][clyde.x] = CLYDE;
   }
   else if (grid[nextY][nextX] === POWERUP_TILE) {
-    // clear old ghost
-    grid[clyde.y][clyde.x] = POWERUP_TILE;
-
+    grid[clyde.y][clyde.x] = clyde.previousTile;
+    clyde.previousTile = grid[nextY][nextX];
     clyde.x = nextX;
     clyde.y = nextY;
+    grid[clyde.y][clyde.x] = CLYDE;
   }
   else if (grid[nextY][nextX] === PLAYER) {
     state = "death screen";
   }
-
-  // update the grid with the new ghost location
-  grid[clyde.y][clyde.x] = CLYDE;
 }
+
 
 
 function mousePressed() {
