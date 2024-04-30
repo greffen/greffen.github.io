@@ -1,9 +1,9 @@
 // Character in 2D Grid
-// Dan Schellenberg
-// Apr 15, 2024
+// Griffin Bartsch
+// Apr 29, 2024
 //
 // Extra for Experts:
-// Implements .includes and .flat (.flat took so much searching for and is a godsend. actually so beautiful), implements audio (which i guess is no longer actually extra for experts), implements 
+// Implements .includes and .flat (.flat took so much searching for and is a godsend. actually so beautiful), implements audio (which i guess is no longer actually extra for experts), learned about and implemented "Manhattan distance" math, includes very basic ai (and iteration on the basic ai at that if i do toot my own horn), began to start animations so there may be some vestigial code from that
 
 let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,],
@@ -14,8 +14,8 @@ let grid = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1,],
   [1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1,],
   [1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1,],
-  [2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 0, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,],
-  [1, 1, 1, 1, 1, 2, 1, 2, 1, 0, 0, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1,],
+  [2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,],
+  [1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1,],
   [1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1,],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,],
   [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1,],
@@ -62,12 +62,16 @@ let state = "start screen";
 let direction = "";
 let isMoving = false;
 let pelletArray = [];
+let hasPlayedWin = false;
+let hasPlayedLose = false;
 
 
 function preload() {
   titleIMG = loadImage("Assets/Images/title.png");
   loadJingleMusic = loadSound("Assets/Sounds/beginning.wav");
   pacMoveSound = loadSound("Assets/Sounds/waka.mp3");
+  pacDeathSound = loadSound("Assets/Sounds/death.wav");
+  pacWinSound = loadSound("Assets/Sounds/intermission.wav");
   sad1 = loadImage("Assets/Images/sad/sad1.png");
   sad2 = loadImage("Assets/Images/sad/sad2.png");
   sad3 = loadImage("Assets/Images/sad/sad3.png");
@@ -83,7 +87,7 @@ function setup() {
     createCanvas(windowHeight, windowHeight);
   }
   
-  //this is dumb -- should check if this is the right size!
+  //this is not dumb
   cellSize = height/grid.length;
 
   //add player to the grid
@@ -92,8 +96,10 @@ function setup() {
   grid[pinky.y][pinky.x] = PINKY;
   grid[blinky.y][blinky.x] = BLINKY;
 
-  //equalize audio
+  //(an attempt to) equalize audio
   loadJingleMusic.setVolume(0.4);
+  pacWinSound.setVolume(0.4);
+  pacDeathSound.setVolume(0.4);
   pacMoveSound.setVolume(0.6);
 }
 
@@ -131,7 +137,12 @@ function draw() {
     textSize(50);
     textAlign(CENTER, CENTER);
     textFont("Crackman");
-    text("<WE'VE GOT A WINNER>", width/2, height/2);
+    text("WE'VE GOT A WINNER!", width/2, height/2);
+    //weird "only play once" clause on the win sound so i dont need to put it in like 2 cases where pac dies
+    if (!pacWinSound.isPlaying() && !hasPlayedWin) {
+      pacWinSound.play();
+      hasPlayed = true;
+    }
   }
   else if (state === "death screen") {
     pacMoveSound.stop();
@@ -141,9 +152,14 @@ function draw() {
     textFont("Crackman");
     text("you lose", width/2, height/4);
     text("WOMP WOMP", width/2, height/1.25);
+    //weird "only play once" clause on the death sound so i dont need to put it in like 100 cases where pac dies
+    if (!pacDeathSound.isPlaying() && !hasPlayedLose) {
+    pacDeathSound.play();
+    hasPlayed = true;
+  }
 
 
-    // Define the positions for each sad image
+    //the positions for each sad image
     let centerX = canvas.width / 2;
     let centerY = canvas.height / 2;
     let padding = 20; 
@@ -209,6 +225,7 @@ function keyPressed() {
 
   if (key === "ArrowRight") {
     direction = "right";
+
   }
 }
 
@@ -221,7 +238,7 @@ function updatePlayerMovement() {
 
 function updateGhostMovement() {
   //framecount workaround thing
-  if (frameCount % 6 === 0) {
+  if (frameCount % 13 === 0) {
     moveGhostPinky();
     moveGhostBlinky();
     moveGhostClyde();
@@ -245,7 +262,7 @@ function movePlayerAccordingToDirection() {
     nextX++;
   }
 
-  // only if the next position is open
+  //only if the next position is open
   if (grid[nextY][nextX] === OPEN_TILE || grid[nextY][nextX] === PELLET_TILE || grid[nextY][nextX] === POWERUP_TILE) {
     //clear old player
     grid[player.y][player.x] = OPEN_TILE;
@@ -287,30 +304,138 @@ function movePlayerAccordingToDirection() {
   }
 }
 
-function moveGhostBlinky() { //chases towrards the player directly
+function moveGhostBlinky() { //chases towards the player tile
+  let nextX = blinky.x;
+  let nextY = blinky.y;
 
+  //calculate the Manhattan distance between Blinky and the player
+  let distanceX = player.x - blinky.x;
+  let distanceY = player.y - blinky.y;
+
+  //determine the direction to move towards the player
+  if (Math.abs(distanceX) > Math.abs(distanceY)) {
+    if (distanceX > 0 && grid[blinky.y][blinky.x + 1] !== BLOCK) {
+      nextX++;
+    } else if (distanceX < 0 && grid[blinky.y][blinky.x - 1] !== BLOCK) {
+      nextX--;
+    }
+  } else {
+    if (distanceY > 0 && grid[blinky.y + 1][blinky.x] !== BLOCK) {
+      nextY++;
+    } else if (distanceY < 0 && grid[blinky.y - 1][blinky.x] !== BLOCK) {
+      nextY--;
+    }
+  }
+
+  //add some randomness to Blinky's movement
+  let randomMove = Math.floor(Math.random() * 4); //generate random number between 0 and 3 to decide direction
+
+  if (randomMove === 0 && grid[blinky.y - 1][blinky.x] !== BLOCK) {  //move up
+    nextY--;
+  } 
+  else if (randomMove === 1 && grid[blinky.y + 1][blinky.x] !== BLOCK) { //move down
+    nextY++;
+  } 
+  else if (randomMove === 2 && grid[blinky.y][blinky.x - 1] !== BLOCK) { //move left
+    nextX--;
+  }
+  else if (randomMove === 3 && grid[blinky.y][blinky.x + 1] !== BLOCK) { //move right
+    nextX++;
+  }
+
+  if (grid[nextY][nextX] === OPEN_TILE || grid[nextY][nextX] === PELLET_TILE || grid[nextY][nextX] === POWERUP_TILE) {
+    grid[blinky.y][blinky.x] = blinky.previousTile;
+    blinky.previousTile = grid[nextY][nextX];
+    blinky.x = nextX;
+    blinky.y = nextY;
+    grid[blinky.y][blinky.x] = BLINKY;
+  } else if (grid[nextY][nextX] === PLAYER) {
+    state = "death screen";
+  }
 }
 
 function moveGhostPinky() { //chases towards the spot 2 tiles in front of the player
-
-}
-
+    let nextX = pinky.x;
+    let nextY = pinky.y;
+  
+    //calculate the position two tiles in front of the player
+    let targetX = player.x;
+    let targetY = player.y;
+    let playerDirection = player.direction;
+  
+    //adjust the target position based on the player's direction
+    if (playerDirection === "up") {
+      targetY -= 2;
+    } else if (playerDirection === "down") {
+      targetY += 2;
+    } else if (playerDirection === "left") {
+      targetX -= 2;
+    } else if (playerDirection === "right") {
+      targetX += 2;
+    }
+  
+    //calculate the Manhattan distance between Pinky and the target position
+    let distanceX = targetX - pinky.x;
+    let distanceY = targetY - pinky.y;
+  
+    //determine the direction to move towards the target position
+    if (Math.abs(distanceX) > Math.abs(distanceY)) {
+      if (distanceX > 0 && grid[pinky.y][pinky.x + 1] !== BLOCK) {
+        nextX++;
+      } else if (distanceX < 0 && grid[pinky.y][pinky.x - 1] !== BLOCK) {
+        nextX--;
+      }
+    } else {
+      if (distanceY > 0 && grid[pinky.y + 1][pinky.x] !== BLOCK) {
+        nextY++;
+      } else if (distanceY < 0 && grid[pinky.y - 1][pinky.x] !== BLOCK) {
+        nextY--;
+      }
+    }
+  
+    //add some randomness to Pinky's movement
+    let randomMove = Math.floor(Math.random() * 4); //generate random number between 0 and 3 to decide direction
+  
+    if (randomMove === 0 && grid[pinky.y - 1][pinky.x] !== BLOCK) {  //move up
+      nextY--;
+    } 
+    else if (randomMove === 1 && grid[pinky.y + 1][pinky.x] !== BLOCK) { //move down
+      nextY++;
+    } 
+    else if (randomMove === 2 && grid[pinky.y][pinky.x - 1] !== BLOCK) { //move left
+      nextX--;
+    }
+    else if (randomMove === 3 && grid[pinky.y][pinky.x + 1] !== BLOCK) { //move right
+      nextX++;
+    }
+  
+    if (grid[nextY][nextX] === OPEN_TILE || grid[nextY][nextX] === PELLET_TILE || grid[nextY][nextX] === POWERUP_TILE) {
+      grid[pinky.y][pinky.x] = pinky.previousTile;
+      pinky.previousTile = grid[nextY][nextX];
+      pinky.x = nextX;
+      pinky.y = nextY;
+      grid[pinky.y][pinky.x] = PINKY;
+    } else if (grid[nextY][nextX] === PLAYER) {
+      state = "death screen";
+    }
+  }
+  
 function moveGhostClyde() { //moves randomly (clydes dumb)
-  let randomMove = Math.floor(Math.random() * 4); // Generate random number between 0 and 3 to decide direction
+  let randomMove = Math.floor(Math.random() * 4); //generate random number between 0 and 3 to decide direction
 
   let nextX = clyde.x;
   let nextY = clyde.y;
 
-  if (randomMove === 0) {  // move up
+  if (randomMove === 0) {  //move up
     nextY--;
   } 
-  else if (randomMove === 1) { // move down
+  else if (randomMove === 1) { //move down
     nextY++;
   } 
-  else if (randomMove === 2) { // move left
+  else if (randomMove === 2) { //move left
     nextX--;
   }
-  else if (randomMove === 3) { // move right
+  else if (randomMove === 3) { //move right
     nextX++;
   }
 
@@ -340,34 +465,33 @@ function moveGhostClyde() { //moves randomly (clydes dumb)
   }
 }
 
+//below is debugging code i used to test the map, pellet stuff and ghost ai
+// function mousePressed() {
+//   let x = Math.floor(mouseX/cellSize);
+//   let y = Math.floor(mouseY/cellSize);
+//   //always toggle self
+//   toggleCell(x, y);
+// }
 
-
-function mousePressed() {
-  let x = Math.floor(mouseX/cellSize);
-  let y = Math.floor(mouseY/cellSize);
-  //always toggle self
-  toggleCell(x, y);
-}
-
-function toggleCell(x, y) {
-//make sure that the cell youre toggleing is in the grid
-  if (x < GRID_SIZE && y < GRID_SIZE &&
-    x >= 0 && y >= 0) { 
-    //toggle the color of the cell
-    if (grid[y][x] === OPEN_TILE) {
-      grid[y][x] = BLOCK;
-    }
-    else if (grid[y][x] === BLOCK) {
-      grid[y][x] = OPEN_TILE;
-    }
-    else if (grid[y][x] === PELLET_TILE) {
-      grid[y][x] = OPEN_TILE;
-    }
-    else if (grid[y][x] === POWERUP_TILE) {
-      grid[y][x] = PELLET_TILE;
-    }
-  }
-}
+// function toggleCell(x, y) {
+// //make sure that the cell youre toggleing is in the grid
+//   if (x < GRID_SIZE && y < GRID_SIZE &&
+//     x >= 0 && y >= 0) { 
+//     //toggle the color of the cell
+//     if (grid[y][x] === OPEN_TILE) {
+//       grid[y][x] = BLOCK;
+//     }
+//     else if (grid[y][x] === BLOCK) {
+//       grid[y][x] = OPEN_TILE;
+//     }
+//     else if (grid[y][x] === PELLET_TILE) {
+//       grid[y][x] = OPEN_TILE;
+//     }
+//     else if (grid[y][x] === POWERUP_TILE) {
+//       grid[y][x] = PELLET_TILE;
+//     }
+//   }
+// }
 
 function displayGrid() {
   for (let y = 0; y < grid.length; y++) {
@@ -415,17 +539,6 @@ function displayGrid() {
   }
 }
 
-function generateEmptyGrid(cols, rows) {
-  let emptyArray = [];
-  for (let y = 0; y < rows; y++) {
-    emptyArray.push([]);
-    for (let x = 0; x < cols; x++) {
-      emptyArray[y].push(0);
-    }
-  }
-  return emptyArray;
-}
-
 function playPacMoveSound() {
   //if moving, play the sound on loop
   if (isMoving === true) {
@@ -443,7 +556,4 @@ function playPacMoveSound() {
 //to do:
 //animation loop
 //lerp movement
-//big balls do something
-//ghost above the grid**
-//other ghost ais
-//get rid of clicking
+//make the text using crackman font not silly when you dont have that font installed
