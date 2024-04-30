@@ -11,6 +11,7 @@
 - [Game of Life](11-gameoflife)
 - [Character in Grid](12-characteringrid)
 - [Platformer Demo](14-platformer)
+- [Walker OOP](15-walker)
 
 ## Projects
 - [Interactive Scene](04-interactivescene)
