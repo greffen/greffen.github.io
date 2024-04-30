@@ -8,7 +8,11 @@
 - [Terrain Generation](07-terrain)
 - [Bubble Movement](09-bubble)
 - [Grid Demo](10-grid)
+- [Game of Life](11-gameoflife)
+- [Character in Grid](12-characteringrid)
+- [Platformer Demo](14-platformer)
 
 ## Projects
 - [Interactive Scene](04-interactivescene)
 - [Arrays and Object Notation](08-arraysnobjects)
+- [Grid Based Game](13-gridbasedgame)

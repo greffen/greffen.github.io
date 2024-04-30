@@ -54,9 +54,9 @@ let blinky = {
   x: 9,
   y: 10,
   previousTile: OPEN_TILE
-}
+};
 let titleIMG;
-let loadJingleMusic, pacMoveSound;  
+let loadJingleMusic, pacMoveSound, pacDeathSound, pacWinSound;  
 let sad1, sad2, sad3, sad4;
 let state = "start screen";
 let direction = "";
@@ -64,6 +64,7 @@ let isMoving = false;
 let pelletArray = [];
 let hasPlayedWin = false;
 let hasPlayedLose = false;
+let hasPlayed;
 
 
 function preload() {
@@ -154,9 +155,9 @@ function draw() {
     text("WOMP WOMP", width/2, height/1.25);
     //weird "only play once" clause on the death sound so i dont need to put it in like 100 cases where pac dies
     if (!pacDeathSound.isPlaying() && !hasPlayedLose) {
-    pacDeathSound.play();
-    hasPlayed = true;
-  }
+      pacDeathSound.play();
+      hasPlayed = true;
+    }
 
 
     //the positions for each sad image
@@ -316,13 +317,16 @@ function moveGhostBlinky() { //chases towards the player tile
   if (Math.abs(distanceX) > Math.abs(distanceY)) {
     if (distanceX > 0 && grid[blinky.y][blinky.x + 1] !== BLOCK) {
       nextX++;
-    } else if (distanceX < 0 && grid[blinky.y][blinky.x - 1] !== BLOCK) {
+    } 
+    else if (distanceX < 0 && grid[blinky.y][blinky.x - 1] !== BLOCK) {
       nextX--;
     }
-  } else {
+  } 
+  else {
     if (distanceY > 0 && grid[blinky.y + 1][blinky.x] !== BLOCK) {
       nextY++;
-    } else if (distanceY < 0 && grid[blinky.y - 1][blinky.x] !== BLOCK) {
+    } 
+    else if (distanceY < 0 && grid[blinky.y - 1][blinky.x] !== BLOCK) {
       nextY--;
     }
   }
@@ -349,76 +353,84 @@ function moveGhostBlinky() { //chases towards the player tile
     blinky.x = nextX;
     blinky.y = nextY;
     grid[blinky.y][blinky.x] = BLINKY;
-  } else if (grid[nextY][nextX] === PLAYER) {
+  } 
+  else if (grid[nextY][nextX] === PLAYER) {
     state = "death screen";
   }
 }
 
 function moveGhostPinky() { //chases towards the spot 2 tiles in front of the player
-    let nextX = pinky.x;
-    let nextY = pinky.y;
+  let nextX = pinky.x;
+  let nextY = pinky.y;
   
-    //calculate the position two tiles in front of the player
-    let targetX = player.x;
-    let targetY = player.y;
-    let playerDirection = player.direction;
+  //calculate the position two tiles in front of the player
+  let targetX = player.x;
+  let targetY = player.y;
+  let playerDirection = player.direction;
   
-    //adjust the target position based on the player's direction
-    if (playerDirection === "up") {
-      targetY -= 2;
-    } else if (playerDirection === "down") {
-      targetY += 2;
-    } else if (playerDirection === "left") {
-      targetX -= 2;
-    } else if (playerDirection === "right") {
-      targetX += 2;
-    }
+  //adjust the target position based on the player's direction
+  if (playerDirection === "up") {
+    targetY -= 2;
+  } 
+  else if (playerDirection === "down") {
+    targetY += 2;
+  } 
+  else if (playerDirection === "left") {
+    targetX -= 2;
+  } 
+  else if (playerDirection === "right") {
+    targetX += 2;
+  }
   
-    //calculate the Manhattan distance between Pinky and the target position
-    let distanceX = targetX - pinky.x;
-    let distanceY = targetY - pinky.y;
+  //calculate the Manhattan distance between Pinky and the target position
+  let distanceX = targetX - pinky.x;
+  let distanceY = targetY - pinky.y;
   
-    //determine the direction to move towards the target position
-    if (Math.abs(distanceX) > Math.abs(distanceY)) {
-      if (distanceX > 0 && grid[pinky.y][pinky.x + 1] !== BLOCK) {
-        nextX++;
-      } else if (distanceX < 0 && grid[pinky.y][pinky.x - 1] !== BLOCK) {
-        nextX--;
-      }
-    } else {
-      if (distanceY > 0 && grid[pinky.y + 1][pinky.x] !== BLOCK) {
-        nextY++;
-      } else if (distanceY < 0 && grid[pinky.y - 1][pinky.x] !== BLOCK) {
-        nextY--;
-      }
-    }
-  
-    //add some randomness to Pinky's movement
-    let randomMove = Math.floor(Math.random() * 4); //generate random number between 0 and 3 to decide direction
-  
-    if (randomMove === 0 && grid[pinky.y - 1][pinky.x] !== BLOCK) {  //move up
-      nextY--;
+  //determine the direction to move towards the target position
+  if (Math.abs(distanceX) > Math.abs(distanceY)) {
+    if (distanceX > 0 && grid[pinky.y][pinky.x + 1] !== BLOCK) {
+      nextX++;
     } 
-    else if (randomMove === 1 && grid[pinky.y + 1][pinky.x] !== BLOCK) { //move down
-      nextY++;
-    } 
-    else if (randomMove === 2 && grid[pinky.y][pinky.x - 1] !== BLOCK) { //move left
+    else if (distanceX < 0 && grid[pinky.y][pinky.x - 1] !== BLOCK) {
       nextX--;
     }
-    else if (randomMove === 3 && grid[pinky.y][pinky.x + 1] !== BLOCK) { //move right
-      nextX++;
-    }
-  
-    if (grid[nextY][nextX] === OPEN_TILE || grid[nextY][nextX] === PELLET_TILE || grid[nextY][nextX] === POWERUP_TILE) {
-      grid[pinky.y][pinky.x] = pinky.previousTile;
-      pinky.previousTile = grid[nextY][nextX];
-      pinky.x = nextX;
-      pinky.y = nextY;
-      grid[pinky.y][pinky.x] = PINKY;
-    } else if (grid[nextY][nextX] === PLAYER) {
-      state = "death screen";
+  } 
+  else {
+    if (distanceY > 0 && grid[pinky.y + 1][pinky.x] !== BLOCK) {
+      nextY++;
+    } 
+    else if (distanceY < 0 && grid[pinky.y - 1][pinky.x] !== BLOCK) {
+      nextY--;
     }
   }
+  
+  //add some randomness to Pinky's movement
+  let randomMove = Math.floor(Math.random() * 4); //generate random number between 0 and 3 to decide direction
+  
+  if (randomMove === 0 && grid[pinky.y - 1][pinky.x] !== BLOCK) {  //move up
+    nextY--;
+  } 
+  else if (randomMove === 1 && grid[pinky.y + 1][pinky.x] !== BLOCK) { //move down
+    nextY++;
+  } 
+  else if (randomMove === 2 && grid[pinky.y][pinky.x - 1] !== BLOCK) { //move left
+    nextX--;
+  }
+  else if (randomMove === 3 && grid[pinky.y][pinky.x + 1] !== BLOCK) { //move right
+    nextX++;
+  }
+  
+  if (grid[nextY][nextX] === OPEN_TILE || grid[nextY][nextX] === PELLET_TILE || grid[nextY][nextX] === POWERUP_TILE) {
+    grid[pinky.y][pinky.x] = pinky.previousTile;
+    pinky.previousTile = grid[nextY][nextX];
+    pinky.x = nextX;
+    pinky.y = nextY;
+    grid[pinky.y][pinky.x] = PINKY;
+  } 
+  else if (grid[nextY][nextX] === PLAYER) {
+    state = "death screen";
+  }
+}
   
 function moveGhostClyde() { //moves randomly (clydes dumb)
   let randomMove = Math.floor(Math.random() * 4); //generate random number between 0 and 3 to decide direction
@@ -551,7 +563,6 @@ function playPacMoveSound() {
     pacMoveSound.stop();
   }
 }
-
 
 //to do:
 //animation loop
