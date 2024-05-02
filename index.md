@@ -12,7 +12,8 @@
 - [Character in Grid](12-characteringrid)
 - [Platformer Demo](14-platformer)
 - [Walker OOP](15-walker)
-- [Walker w/ Arrays](16-walker-with-arrays)
+- [Walker OOP w/ Arrays](16-walker-with-arrays)
+- [Fireworks Demo](17-fireworks)
 
 ## Projects
 - [Interactive Scene](04-interactivescene)
