@@ -12,6 +12,7 @@
 - [Character in Grid](12-characteringrid)
 - [Platformer Demo](14-platformer)
 - [Walker OOP](15-walker)
+- [Walker w/ Arrays](16-walker-with-arrays)
 
 ## Projects
 - [Interactive Scene](04-interactivescene)
